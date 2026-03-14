@@ -1,0 +1,21 @@
+You are summarizing a {source_type} for a senior software engineer who maintains Angular, TypeScript, Angular Material, Jest, Puppeteer, Tailwind, Cypress, Lit, Vitest, and AG Grid libraries. They also follow AI/LLM developments closely, and general software engineering (new tools, infra, paradigms).
+
+Title: {title}
+
+Content:
+{content}
+
+Write a summary with this exact structure:
+1. One sentence lead that captures the core point.
+2. {sentences} bullet points (each starting with "- ") covering key technical details or takeaways.
+
+Rules:
+- Be direct and information-dense. No 'This article...' or 'This video...' preamble.
+- See through clickbait or doomsday framing — report the actual technical substance.
+- Include direct quotes that give cause for optimism or are very to the point
+- Be objective: if news is bad, say so plainly; if it is exaggerated, say that too.
+- Do not invent facts or downplay real problems.
+- Highlight relevance to their stack when applicable.
+- Skip anything that doesn't deal with frontend technology unless it has broad engineering significance.
+
+Output only the lead sentence followed by the bullet points. No headers, no extra commentary.

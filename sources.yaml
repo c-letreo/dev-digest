@@ -1,0 +1,72 @@
+blogs:
+  # ── Angular / TypeScript / Frontend ──────────────────────────────────────────
+  - name: "Angular Blog"
+    rss: "https://blog.angular.io/feed"
+  - name: "TypeScript Blog"
+    rss: "https://devblogs.microsoft.com/typescript/feed/"
+  - name: "Angular Components Releases"
+    rss: "https://github.com/angular/components/releases.atom"
+  - name: "Nx Blog (Angular monorepos)"
+    rss: "https://nx.dev/blog/rss.xml"
+
+    # ── Web Components / Lit ──────────────────────────────────────────────────────
+  - name: "Lit Blog"
+    rss: "https://lit.dev/blog/atom.xml"
+  - name: "web.dev (Google)"
+    rss: "https://web.dev/feed.xml"
+
+  # ── CSS / Tailwind ────────────────────────────────────────────────────────────
+  - name: "Tailwind CSS Blog"
+    rss: "https://tailwindcss.com/feeds/feed.xml"
+
+  # ── AI / LLM developments ────────────────────────────────────────────────────
+  - name: "Simon Willison's Weblog" # hands-on AI experimentation
+    rss: "https://simonwillison.net/atom/everything/"
+  # Anthropic does not publish an official RSS feed
+  # - name: "Anthropic News"
+  #   rss: "https://www.anthropic.com/rss.xml"
+  - name: "The Gradient"
+    rss: "https://thegradient.pub/rss/"
+
+  # ── General Software Engineering ─────────────────────────────────────────────
+  - name: "GitHub Blog" # tool releases, Copilot, platform changes
+    rss: "https://github.blog/feed/"
+  - name: "InfoQ" # architectural patterns, industry trends
+    rss: "https://feed.infoq.com/"
+    max_items: 1
+  - name: "The Pragmatic Engineer" # career & industry implications
+    rss: "https://newsletter.pragmaticengineer.com/feed"
+  - name: "Hacker News Best"
+    rss: "https://hnrss.org/best"
+  - name: "High Scalability"
+    rss: "http://feeds.feedburner.com/HighScalability"
+  - name: "Martin Fowler"
+    rss: "https://martinfowler.com/feed.atom"
+  - name: "Heise - The next big thing"
+    rss: "https://www.heise.de/thema/the-next-big-thing.xml"
+  - name: "Golem"
+    rss: "https://rss.golem.de/rss.php?ms=softwareentwicklung&feed=ATOM1.0"
+
+youtube_channels:
+  # Use @handle format (without the @) — more reliable than raw channel IDs
+  # - name: "Fireship"
+  #   channel_id: "fireship"
+  - name: "Theo (t3.gg)"
+    channel_id: "t3dotgg"
+  # - name: "Primeagen"
+  #   channel_id: "ThePrimeagen"
+  - name: "Jack Herrington" # Angular, React, modern frontend
+    channel_id: "jherr"
+  - name: "AI Explained"
+    channel_id: "aiexplained-official"
+  # - name: "Joshua Morony" # Angular deep dives
+  #   channel_id: "UCbVZdLngJH6KOJvpAOO3qTw"
+
+  # ── Add your own channels below ───────────────────────────────────────────────
+  # - name: "Channel Name"
+  #   channel_id: "handle_without_at"
+
+settings:
+  max_items_per_source: 3 # How many recent items to fetch per source
+  max_age_days: 14 # Skip items older than this many days
+  summary_sentences: 5 to 10 # Target length of each summary

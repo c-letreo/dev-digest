@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dev Digest — $generated_at</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e10;
+    --surface: #17171a;
+    --border: #2a2a30;
+    --accent: #00ff88;
+    --accent-dim: #00ff8820;
+    --yt: #ff4545;
+    --yt-dim: #ff454520;
+    --text: #e8e8ea;
+    --muted: #6e6e7a;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* Header */
+  header {
+    padding: 48px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .logo::before { content: '> '; opacity: 0.5; }
+
+  h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-top: 12px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  .stats {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .stats em {
+    font-style: normal;
+    color: var(--text);
+  }
+
+  /* Cards */
+  .feed {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    transition: border-color 0.15s ease;
+  }
+
+  .card:hover {
+    border-color: #3a3a45;
+  }
+
+  .thumb-wrap {
+    flex-shrink: 0;
+    width: 160px;
+  }
+
+  .thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(20%);
+  }
+
+  .card-body {
+    padding: 20px 24px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+
+  .tag-blog {
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .tag-youtube {
+    background: var(--yt-dim);
+    color: var(--yt);
+    border: 1px solid var(--yt);
+  }
+
+  .date-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    background: #1e1e24;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .card-title a {
+    color: var(--text);
+    text-decoration: none;
+  }
+
+  .card-title a:hover {
+    color: var(--accent);
+  }
+
+  .summary { margin-bottom: 14px; }
+
+  .summary-lead {
+    font-size: 14px;
+    color: #a0a0aa;
+    line-height: 1.65;
+    margin: 0 0 8px;
+  }
+
+  .summary-bullets {
+    font-size: 13px;
+    color: #8a8a94;
+    line-height: 1.6;
+    margin: 0 0 0 16px;
+    padding: 0;
+  }
+
+  .summary-bullets li { margin-bottom: 3px; }
+
+  .read-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--accent);
+    padding: 4px 10px;
+    border-radius: 2px;
+    transition: background 0.15s, color 0.15s;
+  }
+
+  .read-link:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  .empty::before {
+    content: '// ';
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  @media (max-width: 600px) {
+    .thumb-wrap { display: none; }
+    .card-body { padding: 16px; }
+    h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="header-top">
+      <span class="logo">dev-digest</span>
+    </div>
+    <h1>Your daily <span>signal</span>,<br>filtered from the noise.</h1>
+    <div class="stats">
+      <span>generated <em>$generated_at</em></span>
+      <span><em>$blogs_count</em> articles</span>
+      <span><em>$videos_count</em> videos</span>
+      <span><em>$total_count</em> total items</span>
+    </div>
+  </header>
+
+  <main class="feed">
+    $cards_html
+  </main>
+
+  <footer>
+    <span>dev-digest — local AI feed</span>
+    <span>powered by claude-haiku</span>
+  </footer>
+</div>
+</body>
+</html>
