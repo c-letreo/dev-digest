@@ -1,0 +1,15 @@
+stack:
+  - Angular
+  - TypeScript
+  - Angular Material
+  - Jest
+  - Puppeteer
+  - Tailwind
+  - Cypress
+  - Lit
+  - Vitest
+  - AG Grid
+
+interests:
+  - AI/LLM developments (models, tools, agents, APIs, research)
+  - general software engineering (new tools, infra, paradigms, security)

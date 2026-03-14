@@ -5,7 +5,7 @@ Summarization via Claude, and converting summary text to HTML.
 from pathlib import Path
 import anthropic
 
-PROMPT_TEMPLATE = Path(__file__).parent / "prompt.txt"
+PROMPT_TEMPLATE = (Path(__file__).parent / "prompt.txt").read_text()
 
 
 def format_summary_html(text: str) -> str:
@@ -27,13 +27,12 @@ def format_summary_html(text: str) -> str:
     return html or f'<p class="summary-lead">{text}</p>'
 
 
-def summarize(client: anthropic.Anthropic, title: str, content: str, sentences: int, source_type: str) -> str:
+def summarize(client: anthropic.Anthropic, title: str, content: str, sentences: int, source_type: str, stack: str = "", interests: str = "") -> str:
     """Call Claude to produce a short summary."""
     if not content or len(content.strip()) < 50:
         return "No content available to summarize."
 
-    template = PROMPT_TEMPLATE.read_text()
-    prompt = template.format(source_type=source_type, title=title, content=content, sentences=sentences)
+    prompt = PROMPT_TEMPLATE.format(source_type=source_type, title=title, content=content, sentences=sentences, stack=stack, interests=interests)
 
     message = client.messages.create(
         model="claude-haiku-4-5-20251001",

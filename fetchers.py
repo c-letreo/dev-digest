@@ -112,7 +112,7 @@ def fetch_rss_items(feed_url: str, max_items: int, max_age_days: int) -> list[di
             if len(items) >= max_items:
                 break
 
-    return items[:max_items]
+    return items
 
 
 # ── YouTube ───────────────────────────────────────────────────────────────────
@@ -163,10 +163,7 @@ def fetch_youtube_items_api(api_key: str, channel_id: str, max_items: int, max_a
         description = snippet.get("description", "")
         url = f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
 
-        recent = is_recent(date, max_age_days)
-        print(f"   [debug] '{title[:50]}' | date={date} | recent={recent}")
-
-        if url and recent:
+        if url and is_recent(date, max_age_days):
             items.append({"title": title, "url": url, "video_id": video_id, "content": description[:2000], "date": date})
         if len(items) >= max_items:
             break
@@ -212,11 +209,8 @@ def fetch_youtube_items_rss(channel_id: str, max_items: int, max_age_days: int) 
         print(f"  ⚠  Could not parse YouTube feed: {e}")
         return []
 
-    all_entries = root.findall("atom:entry", ns)
-    print(f"   [debug] RSS feed entries found: {len(all_entries)}")
-
     items = []
-    for entry in all_entries[:max_items * 2]:
+    for entry in root.findall("atom:entry", ns)[:max_items * 2]:
         title_el = entry.find("atom:title", ns)
         vid_el = entry.find("yt:videoId", ns)
         date_el = entry.find("atom:published", ns)
@@ -228,10 +222,7 @@ def fetch_youtube_items_rss(channel_id: str, max_items: int, max_age_days: int) 
         description = desc_el.text if desc_el is not None else ""
         url = f"https://www.youtube.com/watch?v={video_id}" if video_id else ""
 
-        recent = is_recent(date, max_age_days)
-        print(f"   [debug] '{title[:50]}' | date={date} | recent={recent}")
-
-        if url and recent:
+        if url and is_recent(date, max_age_days):
             items.append({"title": title, "url": url, "video_id": video_id, "content": description[:2000], "date": date})
         if len(items) >= max_items:
             break

@@ -62,11 +62,31 @@ python3 digest.py
 | Flag | Description |
 |------|-------------|
 | `--config PATH` | Path to sources config (default: `sources.yaml`) |
+| `--profile PATH` | Path to tech stack profile (default: `tech-stack.yml` next to config) |
 | `--output FILE` | Override the output filename |
 | `--force` | Re-summarize items that were already seen |
 | `--no-cache` | Dry run — don't update the seen-items cache |
 
 ## Configuration
+
+### Tech stack
+
+Edit `tech-stack.yml` to describe your tech stack and interests. This is used to tailor summaries and decide what content is relevant:
+
+```yaml
+stack:
+  - Angular
+  - TypeScript
+  - Tailwind
+
+interests:
+  - AI/LLM developments (models, tools, agents, APIs, research)
+  - general software engineering (new tools, infra, paradigms, security)
+```
+
+A custom profile path can be passed with `--profile path/to/tech-stack.yml`.
+
+### Sources
 
 Edit `sources.yaml` to add or remove sources:
 

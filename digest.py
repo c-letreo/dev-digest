@@ -6,6 +6,7 @@ Usage: python digest.py [--config sources.yaml] [--force]
 
 import argparse
 import hashlib
+import html
 import json
 import os
 import platform
@@ -19,11 +20,12 @@ from string import Template
 import anthropic
 import yaml
 
-from fetchers import fetch_rss_items, fetch_youtube_items, fetch_youtube_transcript
+from fetchers import fetch_rss_items, fetch_youtube_items, fetch_youtube_transcript, parse_date
 from summarize import summarize, format_summary_html
 
 SEEN_CACHE = ".seen_items.json"
 TEMPLATE_FILE = Path(__file__).parent / "template.html"
+TECH_STACK_FILE = Path(__file__).parent / "tech-stack.yml"
 
 
 # ── Config & cache ────────────────────────────────────────────────────────────
@@ -31,6 +33,16 @@ TEMPLATE_FILE = Path(__file__).parent / "template.html"
 def load_config(path: str) -> dict:
     with open(path) as f:
         return yaml.safe_load(f)
+
+def load_tech_stack(path: Path) -> tuple[str, str]:
+    """Load tech-stack.yml and return (stack_str, interests_str)."""
+    if not path.exists():
+        return "", ""
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    stack = ", ".join(data.get("stack", []))
+    interests = ", ".join(data.get("interests", []))
+    return stack, interests
 
 def load_seen(cache_path: str) -> set:
     if os.path.exists(cache_path):
@@ -49,7 +61,6 @@ def item_id(url: str) -> str:
 # ── HTML rendering ────────────────────────────────────────────────────────────
 
 def format_date(date_str: str) -> str:
-    from fetchers import parse_date
     dt = parse_date(date_str)
     return dt.strftime("%b %d, %Y") if dt else ""
 
@@ -68,22 +79,51 @@ def build_card(item: dict) -> str:
         {yt_thumb}
         <div class="card-body">
             <div class="card-meta">
-                <span class="tag {tag_class}">{item['source_name']}</span>
+                <span class="tag {tag_class}">{html.escape(item['source_name'])}</span>
             </div>
             <h2 class="card-title">
-                <a href="{item['url']}" target="_blank" rel="noopener">{item['title']}</a>
+                <a href="{html.escape(item['url'])}" target="_blank" rel="noopener">{html.escape(item['title'])}</a>
                 {date_badge}
             </h2>
             <div class="summary">{summary_html}</div>
-            <a class="read-link" href="{item['url']}" target="_blank" rel="noopener">{link_label} ↗</a>
+            <a class="read-link" href="{html.escape(item['url'])}" target="_blank" rel="noopener">{link_label} ↗</a>
         </div>
     </article>"""
 
-def generate_html(digest_items: list[dict], generated_at: str) -> str:
+def build_related_card(item: dict) -> str:
+    tag_class = "tag-blog" if item["type"] == "blog" else "tag-youtube"
+    fmt_date = format_date(item.get("date", ""))
+    date_badge = f'<span class="date-badge">{fmt_date}</span>' if fmt_date else ""
+    link_label = "▶ Watch on YouTube" if item["type"] == "youtube" else "→ Read article"
+    return f"""
+    <article class="card card-related">
+        <div class="card-body">
+            <div class="card-meta">
+                <span class="tag {tag_class}">{html.escape(item['source_name'])}</span>
+                {date_badge}
+            </div>
+            <h2 class="card-title">
+                <a href="{html.escape(item['url'])}" target="_blank" rel="noopener">{html.escape(item['title'])}</a>
+            </h2>
+            <a class="read-link" href="{html.escape(item['url'])}" target="_blank" rel="noopener">{link_label} ↗</a>
+        </div>
+    </article>"""
+
+def generate_html(digest_items: list[dict], related_items: list[dict], generated_at: str) -> str:
     if digest_items:
         cards_html = "\n".join(build_card(item) for item in digest_items)
     else:
         cards_html = '<div class="empty">No new items found. Everything is up to date.</div>'
+
+    if related_items:
+        related_cards = "\n".join(build_related_card(item) for item in related_items)
+        related_html = f"""
+    <section class="related-section">
+        <h2 class="related-heading">In related news</h2>
+        <div class="feed related-feed">{related_cards}</div>
+    </section>"""
+    else:
+        related_html = ""
 
     total = len(digest_items)
     blogs = sum(1 for i in digest_items if i["type"] == "blog")
@@ -94,6 +134,7 @@ def generate_html(digest_items: list[dict], generated_at: str) -> str:
         videos_count=total - blogs,
         total_count=total,
         cards_html=cards_html,
+        related_html=related_html,
     )
 
 
@@ -102,6 +143,7 @@ def generate_html(digest_items: list[dict], generated_at: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description="Generate a local HTML dev digest.")
     parser.add_argument("--config", default="sources.yaml", help="Path to sources.yaml")
+    parser.add_argument("--profile", default=None, help="Path to tech stack YAML (default: tech-stack.yml next to config)")
     parser.add_argument("--output", default=None, help="Override output HTML path")
     parser.add_argument("--force", action="store_true", help="Re-summarize already-seen items")
     parser.add_argument("--no-cache", action="store_true", help="Don't update the seen cache (dry run)")
@@ -111,6 +153,11 @@ def main():
     if not config_path.exists():
         print(f"✗ Config file not found: {config_path}")
         sys.exit(1)
+
+    profile_path = Path(args.profile) if args.profile else config_path.parent / "tech-stack.yml"
+    stack, interests = load_tech_stack(profile_path)
+    if not stack:
+        print("⚠  No tech stack profile found — summaries will lack stack context. Create tech-stack.yml or use --profile.")
 
     config = load_config(config_path)
     settings = config.get("settings", {})
@@ -137,6 +184,7 @@ def main():
         print("ℹ  No GOOGLE_API_KEY — falling back to YouTube RSS feed + transcript summaries.")
 
     digest_items = []
+    related_items = []
     new_seen = set()
 
     # ── Blogs ─────────────────────────────────────────────────────────────────
@@ -155,16 +203,14 @@ def main():
                 print(f"   ⏭  (seen) {item['title'][:60]}")
                 continue
             print(f"   ✦ {item['title'][:65]}")
-            summary = summarize(client, item["title"], item["content"], summary_sentences, "blog article")
+            summary = summarize(client, item["title"], item["content"], summary_sentences, "blog article", stack=stack, interests=interests)
             time.sleep(0.3)
-            digest_items.append({
-                "type": "blog",
-                "source_name": name,
-                "title": item["title"],
-                "url": item["url"],
-                "date": item["date"],
-                "summary": summary,
-            })
+            entry = {"type": "blog", "source_name": name, "title": item["title"], "url": item["url"], "date": item["date"]}
+            if summary == "SKIP":
+                print(f"      ↳ not relevant — added to related news")
+                related_items.append(entry)
+            else:
+                digest_items.append({**entry, "summary": summary})
 
     # ── YouTube ───────────────────────────────────────────────────────────────
     for channel in config.get("youtube_channels", []):
@@ -194,21 +240,18 @@ def main():
                 content = item["title"]
                 content_type = "YouTube video title"
 
-            summary = summarize(client, item["title"], content, summary_sentences, content_type)
+            summary = summarize(client, item["title"], content, summary_sentences, content_type, stack=stack, interests=interests)
             time.sleep(0.3)
-            digest_items.append({
-                "type": "youtube",
-                "source_name": name,
-                "title": item["title"],
-                "url": item["url"],
-                "video_id": item.get("video_id", ""),
-                "date": item["date"],
-                "summary": summary,
-            })
+            entry = {"type": "youtube", "source_name": name, "title": item["title"], "url": item["url"], "video_id": item.get("video_id", ""), "date": item["date"]}
+            if summary == "SKIP":
+                print(f"      ↳ not relevant — added to related news")
+                related_items.append(entry)
+            else:
+                digest_items.append({**entry, "summary": summary})
 
     # ── Write output ──────────────────────────────────────────────────────────
     generated_at = datetime.now().strftime("%A, %B %d %Y — %H:%M")
-    html = generate_html(digest_items, generated_at)
+    html = generate_html(digest_items, related_items, generated_at)
     output_path = output_dir / output_file
     output_path.write_text(html, encoding="utf-8")
 
